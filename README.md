@@ -18,7 +18,7 @@ Then, create a spec like this:
 require 'spec_helper'
 
 describe 'www.example.com:443' do
-  it { is_expected.to have_certificate.commonname('*.example.com') }
+  it { is_expected.to have_certificate.subject(CN: '*.example.com') }
   it { is_expected.to support_protocol('TLSv1.2') }
   it { is_expected.to support_cipher('TLS_RSA_WITH_AES_256_CBC_SHA') }
 end

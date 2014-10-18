@@ -3,4 +3,5 @@ require 'rspec/expectations'
 require 'socket'
 require 'openssl'
 
+require 'rspec_ssltls/util'
 require 'rspec_ssltls/have_certificate'
