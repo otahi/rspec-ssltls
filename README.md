@@ -1,4 +1,4 @@
-# rspec-ssltls [![Build Status](https://travis-ci.org/otahi/rspec-ssltls.png?branch=master)](https://travis-ci.org/otahi/rspec-ssltls)[![Coverage Status](https://coveralls.io/repos/otahi/rspec-ssltls/badge.png?branch=master)](https://coveralls.io/r/otahi/rspec-ssltlsbranch=master)[![Code Climate](https://codeclimate.com/github/otahi/rspec-ssltls.png)](https://codeclimate.com/github/otahi/rspec-ssltls)[![Gem Version](https://badge.fury.io/rb/rspec-ssltls.png)](http://badge.fury.io/rb/rspec-ssltls)
+# rspec-ssltls [![Build Status](https://travis-ci.org/otahi/rspec-ssltls.png?branch=master)](https://travis-ci.org/otahi/rspec-ssltls)[![Coverage Status](https://coveralls.io/repos/otahi/rspec-ssltls/badge.png?branch=master)](https://coveralls.io/r/otahi/rspec-ssltls?branch=master)[![Code Climate](https://codeclimate.com/github/otahi/rspec-ssltls.png)](https://codeclimate.com/github/otahi/rspec-ssltls)[![Gem Version](https://badge.fury.io/rb/rspec-ssltls.png)](http://badge.fury.io/rb/rspec-ssltls)
 
 
 Rspec-ssltls is an rspec plugin for easy SSL/TLS testing.
