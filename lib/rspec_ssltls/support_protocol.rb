@@ -5,12 +5,9 @@ RSpec::Matchers.define :support_protocol do |protocol|
   match do |dest|
     fail 'No Argument Error.' unless protocol
     @protocol = Set.new + [protocol].flatten
-    invalid_protocol =
-      (@protocol.map { |a| a.to_s } -
-       OpenSSL::SSL::SSLContext::METHODS.map { |a| a.to_s })
-    if invalid_protocol.size > 0
-      fail "Invalid protocol.#{invalid_protocol.to_a}"
-    end
+
+    invalid_protocol = RspecSsltls::Util.invalid_ssl_tls_protocol(@protocol)
+    fail "Invalid protocol.#{invalid_protocol.to_a}" if invalid_protocol
 
     @supported_protocol   = Set.new
     @not_supported_protocol = Set.new
@@ -19,6 +16,7 @@ RSpec::Matchers.define :support_protocol do |protocol|
     @protocol.each do |pr|
       socket = TCPSocket.open(uri.host, uri.port)
       ssl_context = OpenSSL::SSL::SSLContext.new(pr)
+      ssl_context.ciphers = ['ALL']
       ssl_socket = OpenSSL::SSL::SSLSocket.new(socket, ssl_context)
       ssl_socket.sync_close = true
       begin

@@ -19,10 +19,25 @@ require 'spec_helper'
 
 describe 'www.example.com:443' do
   it { is_expected.to have_certificate.subject(CN: '*.example.com') }
-  it { is_expected.to support_protocol('TLSv1.2') }
-  it { is_expected.to support_cipher('TLS_RSA_WITH_AES_256_CBC_SHA') }
+  it { is_expected.to support_protocol('TLSv1_2') }
+  it { is_expected.to support_cipher('AES256-SHA').protocol('TLSv1') }
+  it { is_expected.to support_cipher('DES-CBC3-SHA').protocol('SSLv3') }
 end
 ```
+
+You can use followings for `support_protocol` and `support_cipher.protocol`:
+```
+ OpenSSL::SSL::SSLContext::METHODS
+  :TLSv1, :TLSv1_server, :TLSv1_client,
+  :TLSv1_2, :TLSv1_2_server, :TLSv1_2_client,
+  :TLSv1_1, :TLSv1_1_server, :TLSv1_1_client,
+  :SSLv2, :SSLv2_server, :SSLv2_client,
+  :SSLv3, :SSLv3_server, :SSLv3_client,
+  :SSLv23, :SSLv23_server, :SSLv23_client
+```
+
+You can use [ciphers](https://www.openssl.org/docs/apps/ciphers.html) for `support_cipher`.
+
 
 ## Installation
 
