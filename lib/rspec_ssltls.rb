@@ -5,3 +5,4 @@ require 'openssl'
 
 require 'rspec_ssltls/util'
 require 'rspec_ssltls/have_certificate'
+require 'rspec_ssltls/support_protocol'
