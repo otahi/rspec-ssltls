@@ -5,11 +5,11 @@ Rspec-ssltls is an rspec plugin for easy SSL/TLS testing.
 
 ## Usage
 
-RSpec-ssltls is best described by example. First, require `rspec-ssltls` in your `spec_helper.rb`:
+RSpec-ssltls is best described by example. First, require `rspec_ssltls` in your `spec_helper.rb`:
 
 ```ruby
 # spec/spec_helper.rb
-require 'rspec-ssltls'
+require 'rspec_ssltls'
 ```
 
 Then, create a spec like this:
