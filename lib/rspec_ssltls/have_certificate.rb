@@ -3,8 +3,8 @@ require 'uri'
 
 RSpec::Matchers.define :have_certificate do
   match do |dest|
-    @chain_string = ''
-    @result_string = ''
+    @chain_string ||= ''
+    @result_string ||= ''
     uri = URI.parse('https://' + dest)
     socket = TCPSocket.open(uri.host, uri.port)
     ssl_context = OpenSSL::SSL::SSLContext.new
@@ -47,7 +47,8 @@ RSpec::Matchers.define :have_certificate do
 
     @subject = subject
     @subject.each_pair do |k, v|
-      RspecSsltls::Util.add_string(@chain_string, "#{k}=#{v}")
+      @chain_string =
+        RspecSsltls::Util.add_string(@chain_string, "#{k}=\"#{v}\"")
     end
   end
 

@@ -56,5 +56,18 @@ describe 'rspec-ssltls matchers' do
       expect('www.example.com:443')
         .not_to have_certificate.subject(CN: 'www.example.com')
     end
+
+    # show default description
+    it do
+      stub_ssl_socket(peer_cert: example_cert)
+      expect('www.example.com:443')
+        .to have_certificate.subject(CN: '*.example.com',
+                                     C: 'JP',
+                                     ST: 'Tokyo',
+                                     O: 'Example Co., Ltd.',
+                                     OU: 'Example Div.',
+                                     CN: '*.example.com'
+                                     )
+    end
   end
 end

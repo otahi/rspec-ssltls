@@ -26,7 +26,7 @@ describe 'rspec-ssltls matchers' do
     it do
       stub_ssl_socket(cipher: ['DES-CBC3-SHA', 'TLSv1/SSLv3', 168, 168])
       expect('www.example.com:443')
-        .to support_cipher('DES-CBC3-SHA')
+        .to support_cipher(['DES-CBC3-SHA', 'AES256-SHA']).protocol('TLSv1')
     end
   end
 end

@@ -4,9 +4,9 @@ module RspecSsltls
   class Util
     def self.add_string(target, addition)
       if target.nil?
-        target = ' ' + addition
+        ' ' + addition
       else
-        target.join(addition, ' ')
+        target + ', ' + addition
       end
     end
 

@@ -42,7 +42,7 @@ RSpec::Matchers.define :support_cipher do |cipher|
   end
 
   description do
-    "support cipher #{@cipher.to_a}"
+    "support cipher #{@cipher.to_a.join(', ')}#{@chain_string}"
   end
 
   failure_message do

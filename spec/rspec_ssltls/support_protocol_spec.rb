@@ -23,7 +23,7 @@ describe 'rspec-ssltls matchers' do
     it do
       # show default description
       stub_ssl_socket(ssl_version: 'TLSv1')
-      expect('www.example.com:443').to support_protocol('TLSv1')
+      expect('www.example.com:443').to support_protocol(%w(TLSv1 SSLv3))
     end
   end
 end

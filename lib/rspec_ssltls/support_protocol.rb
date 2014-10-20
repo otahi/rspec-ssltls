@@ -33,7 +33,7 @@ RSpec::Matchers.define :support_protocol do |protocol|
   end
 
   description do
-    "support protocol #{@protocol.to_a}"
+    "support protocol #{@protocol.to_a.join(', ')}"
   end
 
   failure_message do
