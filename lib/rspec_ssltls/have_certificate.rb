@@ -16,6 +16,26 @@ RSpec::Matchers.define :have_certificate do
     @peer_cert ? valid_cert? : false
   end
 
+  chain :subject do |id|
+    fail 'Argument Error. Needs hash arguments' unless
+      id.respond_to?(:each_pair)
+
+    @subject = id
+    kv = @subject.each_pair.map { |k, v| "#{k}=\"#{v}\"" }.join(', ')
+    @chain_string =
+      RspecSsltls::Util.add_string(@chain_string, "subject #{kv}")
+  end
+
+  chain :issuer do |id|
+    fail 'Argument Error. Needs hash arguments' unless
+      id.respond_to?(:each_pair)
+
+    @issuer = id
+    kv = @issuer.each_pair.map { |k, v| "#{k}=\"#{v}\"" }.join(', ')
+    @chain_string =
+      RspecSsltls::Util.add_string(@chain_string, "issuer #{kv}")
+  end
+
   def valid_cert?
     @result_cert = {}
     @result_cert.merge!(subject: valid_identifier?(:subject, @subject))
@@ -41,26 +61,6 @@ RSpec::Matchers.define :have_certificate do
       k.to_s == key.to_s
     end
     values.first ? values.first[1] : ''
-  end
-
-  chain :subject do |id|
-    fail 'Argument Error. Needs hash arguments' unless
-      id.respond_to?(:each_pair)
-
-    @subject = id
-    kv = @subject.each_pair.map { |k, v| "#{k}=\"#{v}\"" }.join(', ')
-    @chain_string =
-      RspecSsltls::Util.add_string(@chain_string, "subject #{kv}")
-  end
-
-  chain :issuer do |id|
-    fail 'Argument Error. Needs hash arguments' unless
-      id.respond_to?(:each_pair)
-
-    @issuer = id
-    kv = @issuer.each_pair.map { |k, v| "#{k}=\"#{v}\"" }.join(', ')
-    @chain_string =
-      RspecSsltls::Util.add_string(@chain_string, "issuer #{kv}")
   end
 
   description do
