@@ -14,6 +14,15 @@ def stub_ssl_socket(params = nil)
 end
 
 # See http://www.ietf.org/rfc/rfc5280.txt 4.1.2.4
+example_ca_cert_name =
+  OpenSSL::X509::Name.new([%w(C US),
+                           %w(O Example\ Org.),
+                           %w(OU Example\ Org.\ Div.),
+                           %w(CN ca.example.org)
+                          ])
+example_ca_cert = OpenSSL::X509::Certificate.new
+example_ca_cert.subject = example_ca_cert_name
+
 example_cert_name =
   OpenSSL::X509::Name.new([%w(C JP),
                            %w(ST Tokyo),
@@ -23,15 +32,7 @@ example_cert_name =
                           ])
 example_cert = OpenSSL::X509::Certificate.new
 example_cert.subject = example_cert_name
-
-example_ca_cert_name =
-  OpenSSL::X509::Name.new([%w(C US),
-                           %w(O Example\ Org.),
-                           %w(OU Example\ Org.\ Div.),
-                           %w(CN *.example.org)
-                          ])
-example_ca_cert = OpenSSL::X509::Certificate.new
-example_ca_cert.subject = example_ca_cert_name
+example_cert.issuer = example_ca_cert_name
 
 describe 'rspec-ssltls matchers' do
   describe '#have_certificate' do
@@ -47,11 +48,10 @@ describe 'rspec-ssltls matchers' do
         .to have_certificate.subject(CN: '*.example.com')
       expect('www.example.com:443')
         .to have_certificate.subject(CN: '*.example.com',
-                                     C: 'JP',
+                                     C:  'JP',
                                      ST: 'Tokyo',
-                                     O: 'Example Co., Ltd.',
-                                     OU: 'Example Div.',
-                                     CN: '*.example.com'
+                                     O:  'Example Co., Ltd.',
+                                     OU: 'Example Div.'
                                      )
       expect('www.example.com:443')
         .not_to have_certificate.subject(CN: 'www.example.com')
@@ -62,12 +62,37 @@ describe 'rspec-ssltls matchers' do
       stub_ssl_socket(peer_cert: example_cert)
       expect('www.example.com:443')
         .to have_certificate.subject(CN: '*.example.com',
-                                     C: 'JP',
+                                     C:  'JP',
                                      ST: 'Tokyo',
-                                     O: 'Example Co., Ltd.',
-                                     OU: 'Example Div.',
-                                     CN: '*.example.com'
+                                     O:  'Example Co., Ltd.',
+                                     OU: 'Example Div.'
                                      )
+    end
+
+    it 'can evalutate having certificate issuer' do
+      stub_ssl_socket(peer_cert: example_cert)
+      expect('www.example.com:443')
+        .to have_certificate.issuer(CN: 'ca.example.org')
+      expect('www.example.com:443')
+        .to have_certificate.issuer(CN: 'ca.example.org',
+                                    C:  'US',
+                                    O:  'Example Org.',
+                                    OU: 'Example Org. Div.'
+                                    )
+
+      expect('www.example.com:443')
+        .not_to have_certificate.issuer(CN: 'www.example.org')
+    end
+
+    # show default description
+    it do
+      stub_ssl_socket(peer_cert: example_cert)
+      expect('www.example.com:443')
+        .to have_certificate.issuer(CN: 'ca.example.org',
+                                    C:  'US',
+                                    O:  'Example Org.',
+                                    OU: 'Example Org. Div.'
+                                    )
     end
   end
 end
