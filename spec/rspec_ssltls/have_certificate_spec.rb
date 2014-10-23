@@ -37,13 +37,13 @@ example_cert.issuer = example_ca_cert_name
 describe 'rspec-ssltls matchers' do
   describe '#have_certificate' do
     it 'can evalutate having certificate' do
-      stub_ssl_socket(peer_cert: nil)
+      stub_ssl_socket(peer_cert_chain: [nil])
       expect('www.example.com:443').not_to have_certificate
-      stub_ssl_socket(peer_cert: example_cert)
+      stub_ssl_socket(peer_cert_chain: [example_cert])
       expect('www.example.com:443').to have_certificate
     end
     it 'can evalutate having certificate subject' do
-      stub_ssl_socket(peer_cert: example_cert)
+      stub_ssl_socket(peer_cert_chain: [example_cert])
       expect('www.example.com:443')
         .to have_certificate.subject(CN: '*.example.com')
       expect('www.example.com:443')
@@ -59,7 +59,7 @@ describe 'rspec-ssltls matchers' do
 
     # show default description
     it do
-      stub_ssl_socket(peer_cert: example_cert)
+      stub_ssl_socket(peer_cert_chain: [example_cert])
       expect('www.example.com:443')
         .to have_certificate.subject(CN: '*.example.com',
                                      C:  'JP',
@@ -70,7 +70,7 @@ describe 'rspec-ssltls matchers' do
     end
 
     it 'can evalutate having certificate issuer' do
-      stub_ssl_socket(peer_cert: example_cert)
+      stub_ssl_socket(peer_cert_chain: [example_cert])
       expect('www.example.com:443')
         .to have_certificate.issuer(CN: 'ca.example.org')
       expect('www.example.com:443')
@@ -86,13 +86,46 @@ describe 'rspec-ssltls matchers' do
 
     # show default description
     it do
-      stub_ssl_socket(peer_cert: example_cert)
+      stub_ssl_socket(peer_cert_chain: [example_cert])
       expect('www.example.com:443')
         .to have_certificate.issuer(CN: 'ca.example.org',
                                     C:  'US',
                                     O:  'Example Org.',
                                     OU: 'Example Org. Div.'
                                     )
+    end
+
+    it 'can evalutate having certificate in chain' do
+      stub_ssl_socket(peer_cert_chain: [nil])
+      expect('www.example.com:443').not_to have_certificate.chain(0)
+      stub_ssl_socket(peer_cert_chain: [example_cert])
+      expect('www.example.com:443').to have_certificate.chain(0)
+    end
+    it 'can evalutate having certificate subject in chain' do
+      stub_ssl_socket(peer_cert_chain: [example_cert])
+      expect('www.example.com:443')
+        .to have_certificate.chain(0).subject(CN: '*.example.com')
+      expect('www.example.com:443')
+        .to have_certificate.chain(0).subject(CN: '*.example.com',
+                                              C:  'JP',
+                                              ST: 'Tokyo',
+                                              O:  'Example Co., Ltd.',
+                                              OU: 'Example Div.'
+                                              )
+      expect('www.example.com:443')
+        .not_to have_certificate.chain(0).subject(CN: 'www.example.com')
+    end
+
+    # show default description
+    it do
+      stub_ssl_socket(peer_cert_chain: [example_cert])
+      expect('www.example.com:443')
+        .to have_certificate.chain(0).subject(CN: '*.example.com',
+                                              C:  'JP',
+                                              ST: 'Tokyo',
+                                              O:  'Example Co., Ltd.',
+                                              OU: 'Example Div.'
+                                              )
     end
   end
 end

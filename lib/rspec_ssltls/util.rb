@@ -2,11 +2,11 @@
 module RspecSsltls
   # Utility class
   class Util
-    def self.add_string(target, addition)
+    def self.add_string(target, addition, separator = ', ')
       if target.nil?
         ' ' + addition
       else
-        target + ', ' + addition
+        target + separator + addition
       end
     end
 
