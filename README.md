@@ -21,6 +21,15 @@ describe 'www.example.com:443' do
   it { is_expected.to have_certificate.subject(CN: '*.example.com') }
   it { is_expected.to have_certificate.issuer(CN: 'ca.example.org') }
   it { is_expected.to have_certificate.chain(0).subject(CN: '*.example.com') }
+  it do
+    is_expected.to have_certificate
+      .subject(CN: '*.example.com').valid_at('2020/09/12 19:00:05 JST')
+  end
+  it do
+    is_expected.to have_certificate
+      .subject(CN: '*.example.com')
+      .valid_in('2014/09/12 19:00:05 UTC', '2015/10/01 00:00:00 UTC')
+  end
   it { is_expected.to support_protocol('TLSv1_2') }
   it { is_expected.to support_cipher('AES256-SHA').protocol('TLSv1') }
   it { is_expected.to support_cipher('DES-CBC3-SHA').protocol('SSLv3') }

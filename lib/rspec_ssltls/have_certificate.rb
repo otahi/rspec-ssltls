@@ -1,5 +1,6 @@
 require 'rspec_ssltls'
 require 'uri'
+require 'time'
 
 RSpec::Matchers.define :have_certificate do
   match do |dest|
@@ -31,10 +32,25 @@ RSpec::Matchers.define :have_certificate do
       RspecSsltls::Util.add_string(@chain_string, "chain[#{n}]")
   end
 
+  chain :valid_at do |t|
+    @chain_string =
+      RspecSsltls::Util.add_string(@chain_string, "valiid at #{t}")
+    @t1 = t
+    @t2 = t
+  end
+
+  chain :valid_in do |t1, t2|
+    @chain_string = RspecSsltls::Util
+      .add_string(@chain_string, "valiid in #{t1} - #{t2}")
+    @t1 = t1
+    @t2 = t2
+  end
+
   def valid_cert?
     @result_cert = {}
     @result_cert.merge!(subject: valid_identifier?(:subject, @subject))
     @result_cert.merge!(issuer:  valid_identifier?(:issuer, @issuer))
+    @result_cert.merge!(valid_in: valid_in?)
     @result_cert.values.all? { |r| r == true }
   end
 
@@ -66,6 +82,28 @@ RSpec::Matchers.define :have_certificate do
     kv = id.each_pair.map { |k, v| "#{k}=\"#{v}\"" }.join(', ')
     @chain_string =
       RspecSsltls::Util.add_string(@chain_string, "#{key} #{kv}", ' ')
+  end
+
+  def valid_in?
+    return true unless @t1 && @t2
+    fail 'Input time range is incorrect' if @t2 < @t1
+    parse_time
+
+    if @t1 == @t2
+      @result_string += "  expected: valid in #{@t1} .. #{@t2}\n"
+    else
+      @result_string += "  expected: valid at #{@t1}\n"
+    end
+    @result_string +=
+      "  actual: valid in #{@peer_cert.not_before} .. #{@peer_cert.not_after}\n"
+
+    (@peer_cert.not_before..@peer_cert.not_after).cover?(@t1) &&
+      (@peer_cert.not_before..@peer_cert.not_after).cover?(@t2)
+  end
+
+  def parse_time
+    @t1 = Time.parse(@t1) unless @t1.respond_to?(:getutc)
+    @t2 = Time.parse(@t2) unless @t2.respond_to?(:getutc)
   end
 
   description do
