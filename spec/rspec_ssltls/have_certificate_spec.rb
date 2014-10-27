@@ -14,6 +14,8 @@ def stub_ssl_socket(params = nil)
 end
 
 # See http://www.ietf.org/rfc/rfc5280.txt 4.1.2.4
+# See https://github.com/openssl/openssl/blob/master/crypto/objects/obj_xref.txt
+
 example_ca_cert_name =
   OpenSSL::X509::Name.new([%w(C US),
                            %w(O Example\ Org.),
@@ -40,12 +42,22 @@ example_cert.not_after  = Time.utc(0, 0, 0, 1, 10, 2015, nil, nil, nil, nil)
 
 describe 'rspec-ssltls matchers' do
   describe '#have_certificate' do
+    before :each do
+      allow(example_ca_cert).to receive(:signature_algorithm)
+        .and_return('sha512WithRSAEncryption')
+      allow(example_cert).to receive(:signature_algorithm)
+        .and_return('sha1WithRSAEncryption')
+    end
+
+    ## Having certificate
     it 'can evalutate having certificate' do
       stub_ssl_socket(peer_cert_chain: [nil])
       expect('www.example.com:443').not_to have_certificate
       stub_ssl_socket(peer_cert_chain: [example_cert])
       expect('www.example.com:443').to have_certificate
     end
+
+    ## Subject
     it 'can evalutate having certificate subject' do
       stub_ssl_socket(peer_cert_chain: [example_cert])
       expect('www.example.com:443')
@@ -73,6 +85,7 @@ describe 'rspec-ssltls matchers' do
                                      )
     end
 
+    ## Issuer
     it 'can evalutate having certificate issuer' do
       stub_ssl_socket(peer_cert_chain: [example_cert])
       expect('www.example.com:443')
@@ -99,6 +112,7 @@ describe 'rspec-ssltls matchers' do
                                     )
     end
 
+    ## Chain
     it 'can evalutate having certificate in chain' do
       stub_ssl_socket(peer_cert_chain: [nil])
       expect('www.example.com:443').not_to have_certificate.chain(0)
@@ -132,6 +146,7 @@ describe 'rspec-ssltls matchers' do
                                               )
     end
 
+    ## Valid at
     it 'can evalutate having certificate subject valid_at' do
       stub_ssl_socket(peer_cert_chain: [example_cert])
       expect('www.example.com:443').to have_certificate
@@ -159,6 +174,7 @@ describe 'rspec-ssltls matchers' do
         .valid_at('2014/10/01 09:34 JST')
     end
 
+    ## Valid in
     it 'can evalutate having certificate subject valid_in' do
       stub_ssl_socket(peer_cert_chain: [example_cert])
       expect('www.example.com:443').to have_certificate
@@ -188,6 +204,28 @@ describe 'rspec-ssltls matchers' do
       expect('www.example.com:443').to have_certificate
         .subject(CN: '*.example.com')
         .valid_in('2014/09/12 19:00:05 UTC', '2015/10/01 00:00:00 UTC')
+    end
+
+    ## Signature algolizm
+    it 'can evalutate certificate signature algorithm' do
+      stub_ssl_socket(peer_cert_chain: [example_cert, example_ca_cert])
+      expect('www.example.com:443').to have_certificate
+        .subject(CN: '*.example.com')
+        .signature_algorithm('sha1WithRSAEncryption')
+      expect('www.example.com:443').to have_certificate
+        .chain(1).subject(CN: 'ca.example.org')
+        .signature_algorithm('sha512WithRSAEncryption')
+      expect('www.example.com:443').not_to have_certificate
+        .subject(CN: '*.example.com')
+        .signature_algorithm('sha512WithRSAEncryption')
+    end
+
+    # show default description
+    it do
+      stub_ssl_socket(peer_cert_chain: [example_cert])
+      expect('www.example.com:443').to have_certificate
+        .subject(CN: '*.example.com')
+        .signature_algorithm('sha1WithRSAEncryption')
     end
   end
 end

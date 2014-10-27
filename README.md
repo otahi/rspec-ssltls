@@ -1,7 +1,7 @@
 # rspec-ssltls [![Build Status](https://travis-ci.org/otahi/rspec-ssltls.png?branch=master)](https://travis-ci.org/otahi/rspec-ssltls)[![Coverage Status](https://coveralls.io/repos/otahi/rspec-ssltls/badge.png?branch=master)](https://coveralls.io/r/otahi/rspec-ssltls?branch=master)[![Code Climate](https://codeclimate.com/github/otahi/rspec-ssltls.png)](https://codeclimate.com/github/otahi/rspec-ssltls)[![Gem Version](https://badge.fury.io/rb/rspec-ssltls.png)](http://badge.fury.io/rb/rspec-ssltls)
 
 
-Rspec-ssltls is an rspec plugin for easy SSL/TLS testing.
+Rspec-ssltls is an rspec plugin for easy SSL/TLS testing with Ruby standard OpenSSL library.
 
 ## Usage
 
@@ -30,6 +30,10 @@ describe 'www.example.com:443' do
       .subject(CN: '*.example.com')
       .valid_in('2014/09/12 19:00:05 UTC', '2015/10/01 00:00:00 UTC')
   end
+  it do
+    is_expected.to have_certificate
+      .subject(CN: '*.example.com').signature_algorithm('sha1WithRSAEncryption')
+  end
   it { is_expected.to support_protocol('TLSv1_2') }
   it { is_expected.to support_cipher('AES256-SHA').protocol('TLSv1') }
   it { is_expected.to support_cipher('DES-CBC3-SHA').protocol('SSLv3') }
@@ -49,6 +53,7 @@ You can use followings for `support_protocol` and `support_cipher.protocol`:
 
 You can use [ciphers](https://www.openssl.org/docs/apps/ciphers.html) for `support_cipher`.
 
+You can use [signature algorithm](https://github.com/openssl/openssl/blob/master/crypto/objects/obj_xref.txt) for `signature_algorithm`.
 
 ## Installation
 

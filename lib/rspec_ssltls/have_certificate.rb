@@ -46,11 +46,18 @@ RSpec::Matchers.define :have_certificate do
     @t2 = t2
   end
 
+  chain :signature_algorithm do |s|
+    @chain_string =
+      RspecSsltls::Util.add_string(@chain_string, "signed with #{s}")
+    @signature_algorithm = s
+  end
+
   def valid_cert?
     @result_cert = {}
     @result_cert.merge!(subject: valid_identifier?(:subject, @subject))
     @result_cert.merge!(issuer:  valid_identifier?(:issuer, @issuer))
     @result_cert.merge!(valid_in: valid_in?)
+    @result_cert.merge!(signature_algorithm: valid_signature_algolithm?)
     @result_cert.values.all? { |r| r == true }
   end
 
@@ -99,6 +106,14 @@ RSpec::Matchers.define :have_certificate do
 
     (@peer_cert.not_before..@peer_cert.not_after).cover?(@t1) &&
       (@peer_cert.not_before..@peer_cert.not_after).cover?(@t2)
+  end
+
+  def valid_signature_algolithm?
+    return true unless @signature_algorithm
+    @result_string += "  expected: signed with #{@signature_algorithm}\n"
+    @result_string +=
+      "  actual:   signed with #{@peer_cert.signature_algorithm}\n"
+    @signature_algorithm == @peer_cert.signature_algorithm
   end
 
   def parse_time
