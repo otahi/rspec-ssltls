@@ -101,8 +101,8 @@ RSpec::Matchers.define :have_certificate do
     else
       @result_string += "  expected: valid at #{@t1}\n"
     end
-    @result_string +=
-      "  actual: valid in #{@peer_cert.not_before} .. #{@peer_cert.not_after}\n"
+    @result_string += "  actual:   valid in #{@peer_cert.not_before}"
+    @result_string += ".. #{@peer_cert.not_after}\n"
 
     (@peer_cert.not_before..@peer_cert.not_after).cover?(@t1) &&
       (@peer_cert.not_before..@peer_cert.not_after).cover?(@t2)
