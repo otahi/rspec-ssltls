@@ -34,14 +34,14 @@ RSpec::Matchers.define :have_certificate do
 
   chain :valid_at do |t|
     @chain_string =
-      RspecSsltls::Util.add_string(@chain_string, "valiid at #{t}")
+      RspecSsltls::Util.add_string(@chain_string, "valid at #{t}")
     @t1 = t
     @t2 = t
   end
 
   chain :valid_in do |t1, t2|
     @chain_string = RspecSsltls::Util
-      .add_string(@chain_string, "valiid in #{t1} - #{t2}")
+      .add_string(@chain_string, "valid in #{t1} - #{t2}")
     @t1 = t1
     @t2 = t2
   end
