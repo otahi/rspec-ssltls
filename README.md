@@ -34,6 +34,11 @@ describe 'www.example.com:443' do
     is_expected.to have_certificate
       .subject(CN: '*.example.com').signature_algorithm('sha1WithRSAEncryption')
   end
+  it { is_expected.to have_certificate.verified }
+  it do
+    is_expected.to have_certificate
+      .verified_with(File.read('example.org.cer'))
+  end
   it { is_expected.to support_protocol('TLSv1_2') }
   it { is_expected.to support_cipher('AES256-SHA').protocol('TLSv1') }
   it { is_expected.to support_cipher('DES-CBC3-SHA').protocol('SSLv3') }

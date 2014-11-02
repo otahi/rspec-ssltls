@@ -1,44 +1,7 @@
 require 'spec_helper'
 require 'rspec_ssltls'
 
-def stub_ssl_socket(params = nil)
-  allow(TCPSocket).to receive(:open).and_return(nil)
-  allow(OpenSSL::SSL::SSLSocket).to receive(:new) do
-    ssl_socket = double('ssl_socket')
-    allow(ssl_socket).to receive(:method_missing).and_return(nil)
-    params.each_pair do |k, v|
-      allow(ssl_socket).to receive(k).and_return(v)
-    end if params
-    ssl_socket
-  end
-end
-
-# See http://www.ietf.org/rfc/rfc5280.txt 4.1.2.4
-# See https://github.com/openssl/openssl/blob/master/crypto/objects/obj_xref.txt
-
-example_ca_cert_name =
-  OpenSSL::X509::Name.new([%w(C US),
-                           %w(O Example\ Org.),
-                           %w(OU Example\ Org.\ Div.),
-                           %w(CN ca.example.org)
-                          ])
-example_ca_cert = OpenSSL::X509::Certificate.new
-example_ca_cert.subject = example_ca_cert_name
-example_ca_cert.not_before = Time.utc(0, 0, 0, 1, 10, 2014, nil, nil, nil, nil)
-example_ca_cert.not_after  = Time.utc(0, 0, 0, 1, 10, 2022, nil, nil, nil, nil)
-
-example_cert_name =
-  OpenSSL::X509::Name.new([%w(C JP),
-                           %w(ST Tokyo),
-                           %w(O Example\ Co.,\ Ltd.),
-                           %w(OU Example\ Div.),
-                           %w(CN *.example.com)
-                          ])
-example_cert = OpenSSL::X509::Certificate.new
-example_cert.subject = example_cert_name
-example_cert.issuer = example_ca_cert_name
-example_cert.not_before = Time.utc(5, 0, 19, 12, 9, 2014, nil, nil, nil, nil)
-example_cert.not_after  = Time.utc(0, 0, 0, 1, 10, 2015, nil, nil, nil, nil)
+example_ca_cert, example_cert = prepare_ca_certs
 
 describe 'rspec-ssltls matchers' do
   describe '#have_certificate' do
@@ -47,6 +10,10 @@ describe 'rspec-ssltls matchers' do
         .and_return('sha512WithRSAEncryption')
       allow(example_cert).to receive(:signature_algorithm)
         .and_return('sha1WithRSAEncryption')
+    end
+
+    after :all do
+      cleanup_ca_certs
     end
 
     ## Having certificate
@@ -226,6 +193,46 @@ describe 'rspec-ssltls matchers' do
       expect('www.example.com:443').to have_certificate
         .subject(CN: '*.example.com')
         .signature_algorithm('sha1WithRSAEncryption')
+    end
+
+    ## Verified
+    it 'can evalutate certificate verified' do
+      stub_ssl_socket(peer_cert_chain: [example_cert, example_ca_cert],
+                      verify_result: OpenSSL::X509::V_OK)
+      expect('www.example.com:443').to have_certificate
+        .verified
+      stub_ssl_socket(peer_cert_chain: nil,
+                      verify_result: OpenSSL::X509::V_ERR_CERT_REJECTED)
+      expect('www.example.com:443').not_to have_certificate
+        .verified
+    end
+
+    # show default description
+    it do
+      stub_ssl_socket(peer_cert_chain: [example_cert],
+                      verify_result: OpenSSL::X509::V_OK)
+      expect('www.example.com:443').to have_certificate
+        .verified
+    end
+
+    ## Verified with CA certficate
+    it 'can evalutate certificate verified with CA certificate' do
+      stub_ssl_socket(peer_cert_chain: [example_cert, example_ca_cert],
+                      verify_result: OpenSSL::X509::V_OK)
+      expect('www.example.com:443').to have_certificate
+        .verified_with('tmp/ca_cert.cer')
+      stub_ssl_socket(peer_cert_chain: nil,
+                      verify_result: OpenSSL::X509::V_ERR_CERT_UNTRUSTED)
+      expect('www.example.com:443').not_to have_certificate
+        .verified_with('tmp/cert.cer')
+    end
+
+    # show default description
+    it do
+      stub_ssl_socket(peer_cert_chain: [example_cert],
+                      verify_result: OpenSSL::X509::V_OK)
+      expect('www.example.com:443').to have_certificate
+        .verified_with('tmp/ca_cert.cer')
     end
   end
 end
