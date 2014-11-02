@@ -118,7 +118,7 @@ RSpec::Matchers.define :have_certificate do
     if @verify_result == OpenSSL::X509::V_OK
       @result_string += "  actual:   verified\n"
     else
-      @result_string += "  actual:   unverified\n"
+      @result_string += "  actual:   unverified(errorcode: #{@verify_result})\n"
     end
     @verify_result == OpenSSL::X509::V_OK
   end
@@ -165,5 +165,7 @@ RSpec::Matchers.define :have_certificate do
   failure_message_when_negated do
     s = "expected not to have a certificate#{@chain_string}, but did."
     s + "\n#{@result_string}"
+      .sub(/(expected:)/, 'expected not:')
+      .sub(/(actual:)/,   'actual:    ')
   end
 end
