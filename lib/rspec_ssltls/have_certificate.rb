@@ -38,7 +38,7 @@ RSpec::Matchers.define :have_certificate do
   end
 
   chain :verified do
-    @verfy_mode = OpenSSL::SSL::VERIFY_PEER
+    @verify_mode = OpenSSL::SSL::VERIFY_PEER
     @cert_store = OpenSSL::X509::Store.new
     @cert_store.set_default_paths
     @chain_string =
@@ -46,7 +46,7 @@ RSpec::Matchers.define :have_certificate do
   end
 
   chain :verified_with do |c|
-    @verfy_mode = OpenSSL::SSL::VERIFY_PEER
+    @verify_mode = OpenSSL::SSL::VERIFY_PEER
     @cert_store = OpenSSL::X509::Store.new
     @cert_store.add_file(c)
     @chain_string =
@@ -118,7 +118,7 @@ RSpec::Matchers.define :have_certificate do
     if @verify_result == OpenSSL::X509::V_OK
       @result_string += "  actual:   verified\n"
     else
-      @result_string += "  actual:   unvarified\n"
+      @result_string += "  actual:   unverified\n"
     end
     @verify_result == OpenSSL::X509::V_OK
   end
