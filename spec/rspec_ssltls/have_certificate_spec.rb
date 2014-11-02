@@ -197,34 +197,40 @@ describe 'rspec-ssltls matchers' do
 
     ## Verified
     it 'can evalutate certificate verified' do
-      stub_ssl_socket(peer_cert_chain: [example_cert, example_ca_cert])
+      stub_ssl_socket(peer_cert_chain: [example_cert, example_ca_cert],
+                      verify_result: OpenSSL::X509::V_OK)
       expect('www.example.com:443').to have_certificate
         .verified
-      stub_ssl_socket(peer_cert_chain: nil)
+      stub_ssl_socket(peer_cert_chain: nil,
+                      verify_result: OpenSSL::X509::V_ERR_CERT_REJECTED)
       expect('www.example.com:443').not_to have_certificate
         .verified
     end
 
     # show default description
     it do
-      stub_ssl_socket(peer_cert_chain: [example_cert])
+      stub_ssl_socket(peer_cert_chain: [example_cert],
+                      verify_result: OpenSSL::X509::V_OK)
       expect('www.example.com:443').to have_certificate
         .verified
     end
 
     ## Verified with CA certficate
     it 'can evalutate certificate verified with CA certificate' do
-      stub_ssl_socket(peer_cert_chain: [example_cert, example_ca_cert])
+      stub_ssl_socket(peer_cert_chain: [example_cert, example_ca_cert],
+                      verify_result: OpenSSL::X509::V_OK)
       expect('www.example.com:443').to have_certificate
         .verified_with('tmp/ca_cert.cer')
-      stub_ssl_socket(peer_cert_chain: nil)
+      stub_ssl_socket(peer_cert_chain: nil,
+                      verify_result: OpenSSL::X509::V_ERR_CERT_UNTRUSTED)
       expect('www.example.com:443').not_to have_certificate
         .verified_with('tmp/cert.cer')
     end
 
     # show default description
     it do
-      stub_ssl_socket(peer_cert_chain: [example_cert])
+      stub_ssl_socket(peer_cert_chain: [example_cert],
+                      verify_result: OpenSSL::X509::V_OK)
       expect('www.example.com:443').to have_certificate
         .verified_with('tmp/ca_cert.cer')
     end
