@@ -14,14 +14,13 @@ RSpec::Matchers.define :have_certificate do
     ssl_context.cert_store  = @cert_store  if @cert_store
     ssl_socket = OpenSSL::SSL::SSLSocket.new(socket, ssl_context)
     ssl_socket.sync_close = true
-    begin
-      ssl_socket.connect
+    ssl_socket.connect
+    if ssl_socket.peer_cert_chain
       @peer_cert = ssl_socket.peer_cert_chain[@chain_number]
-      ssl_socket.close
-      @peer_cert ? valid_cert? : false
-    rescue
-      false
     end
+    @verify_result = ssl_socket.verify_result
+    ssl_socket.close
+    @peer_cert ? valid_cert? && verified_cert? : false
   end
 
   chain :subject do |id|
@@ -40,6 +39,8 @@ RSpec::Matchers.define :have_certificate do
 
   chain :verified do
     @verfy_mode = OpenSSL::SSL::VERIFY_PEER
+    @cert_store = OpenSSL::X509::Store.new
+    @cert_store.set_default_paths
     @chain_string =
       RspecSsltls::Util.add_string(@chain_string, 'verified')
   end
@@ -109,6 +110,17 @@ RSpec::Matchers.define :have_certificate do
     kv = id.each_pair.map { |k, v| "#{k}=\"#{v}\"" }.join(', ')
     @chain_string =
       RspecSsltls::Util.add_string(@chain_string, "#{key} #{kv}", ' ')
+  end
+
+  def verified_cert?
+    return true if @verify_mode.nil?
+    @result_string += "  expected: verified\n"
+    if @verify_result == OpenSSL::X509::V_OK
+      @result_string += "  actual:   verified\n"
+    else
+      @result_string += "  actual:   unvarified\n"
+    end
+    @verify_result == OpenSSL::X509::V_OK
   end
 
   def valid_in?
