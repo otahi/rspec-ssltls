@@ -4,18 +4,24 @@ require 'time'
 
 RSpec::Matchers.define :have_certificate do
   match do |dest|
-    @chain_string ||= ''
+    @chain_string  ||= ''
     @result_string ||= ''
-    @chain_number ||= 0
+    @chain_number  ||= 0
     uri = URI.parse('https://' + dest)
     socket = TCPSocket.open(uri.host, uri.port)
     ssl_context = OpenSSL::SSL::SSLContext.new
+    ssl_context.verify_mode = @verify_mode if @verify_mode
+    ssl_context.cert_store  = @cert_store  if @cert_store
     ssl_socket = OpenSSL::SSL::SSLSocket.new(socket, ssl_context)
     ssl_socket.sync_close = true
-    ssl_socket.connect
-    @peer_cert = ssl_socket.peer_cert_chain[@chain_number]
-    ssl_socket.close
-    @peer_cert ? valid_cert? : false
+    begin
+      ssl_socket.connect
+      @peer_cert = ssl_socket.peer_cert_chain[@chain_number]
+      ssl_socket.close
+      @peer_cert ? valid_cert? : false
+    rescue
+      false
+    end
   end
 
   chain :subject do |id|
@@ -30,6 +36,20 @@ RSpec::Matchers.define :have_certificate do
     @chain_number = n
     @chain_string =
       RspecSsltls::Util.add_string(@chain_string, "chain[#{n}]")
+  end
+
+  chain :verified do
+    @verfy_mode = OpenSSL::SSL::VERIFY_PEER
+    @chain_string =
+      RspecSsltls::Util.add_string(@chain_string, 'verified')
+  end
+
+  chain :verified_with do |c|
+    @verfy_mode = OpenSSL::SSL::VERIFY_PEER
+    @cert_store = OpenSSL::X509::Store.new
+    @cert_store.add_file(c)
+    @chain_string =
+      RspecSsltls::Util.add_string(@chain_string, "verified with #{c}")
   end
 
   chain :valid_at do |t|
