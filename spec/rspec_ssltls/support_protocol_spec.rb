@@ -20,6 +20,20 @@ describe 'rspec-ssltls matchers' do
       expect('www.example.com:443').not_to support_protocol([:TLSv1, 'SSLv3'])
     end
 
+    it 'can evalutate support protocol via_proxy' do
+      https_proxy = 'http://user:pass@proxy.example.com/'
+      stub_ssl_socket(ssl_version: 'TLSv1')
+      expect('www.example.com:443').to(support_protocol('TLSv1')
+                                         .via_proxy(https_proxy))
+      expect('www.example.com:443').to(support_protocol(:TLSv1)
+                                         .via_proxy(https_proxy))
+      stub_ssl_socket(ssl_version: nil)
+      expect('www.example.com:443').not_to(support_protocol('SSLv3')
+                                             .via_proxy(https_proxy))
+      expect('www.example.com:443').not_to(support_protocol([:TLSv1, 'SSLv3'])
+                                             .via_proxy(https_proxy))
+    end
+
     it do
       # show default description
       stub_ssl_socket(ssl_version: 'TLSv1')

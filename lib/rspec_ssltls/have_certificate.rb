@@ -73,6 +73,10 @@ RSpec::Matchers.define :have_certificate do
     @signature_algorithm = s
   end
 
+  chain :via_proxy do |proxy|
+    @proxy = proxy
+  end
+
   def valid_cert?
     @result_cert = {}
     @result_cert.merge!(subject: valid_identifier?(:subject, @subject))

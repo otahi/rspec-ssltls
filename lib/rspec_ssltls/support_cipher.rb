@@ -41,6 +41,10 @@ RSpec::Matchers.define :support_cipher do |cipher|
       RspecSsltls::Util.add_string(@chain_string, "on #{@protocol}")
   end
 
+  chain :via_proxy do |proxy|
+    @proxy = proxy
+  end
+
   description do
     "support cipher #{@cipher.to_a.join(', ')}#{@chain_string}"
   end

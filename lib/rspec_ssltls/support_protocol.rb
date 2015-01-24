@@ -32,6 +32,10 @@ RSpec::Matchers.define :support_protocol do |protocol|
     (@protocol - @supported_protocol).size == 0
   end
 
+  chain :via_proxy do |proxy|
+    @proxy = proxy
+  end
+
   description do
     "support protocol #{@protocol.to_a.join(', ')}"
   end
