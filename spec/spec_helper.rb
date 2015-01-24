@@ -18,7 +18,7 @@ require 'openssl'
 require 'fileutils'
 
 def stub_ssl_socket(params = nil)
-  allow(TCPSocket).to receive(:open).and_return(nil)
+  allow(RspecSsltls::Util).to receive(:open_socket).and_return(nil)
   allow(OpenSSL::SSL::SSLSocket).to receive(:new) do
     ssl_socket = double('ssl_socket')
     allow(ssl_socket).to receive(:method_missing).and_return(nil)
