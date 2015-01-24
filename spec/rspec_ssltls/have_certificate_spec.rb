@@ -24,6 +24,16 @@ describe 'rspec-ssltls matchers' do
       expect('www.example.com:443').to have_certificate
     end
 
+    ## Having certificate via proxy
+    it 'can evalutate having certificate via proxy' do
+      https_proxy = 'http://user:pass@proxy.example.com/'
+      stub_ssl_socket(peer_cert_chain: [nil])
+      expect('www.example.com:443').not_to(have_certificate
+                                             .via_proxy(https_proxy))
+      stub_ssl_socket(peer_cert_chain: [example_cert])
+      expect('www.example.com:443').to have_certificate.via_proxy(https_proxy)
+    end
+
     ## Subject
     it 'can evalutate having certificate subject' do
       stub_ssl_socket(peer_cert_chain: [example_cert])

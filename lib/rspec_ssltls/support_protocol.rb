@@ -14,7 +14,7 @@ RSpec::Matchers.define :support_protocol do |protocol|
     uri = URI.parse('https://' + dest)
 
     @protocol.each do |pr|
-      socket = TCPSocket.open(uri.host, uri.port)
+      socket = RspecSsltls::Util.open_socket(uri, proxy: @proxy)
       ssl_context = OpenSSL::SSL::SSLContext.new(pr)
       ssl_context.ciphers = ['ALL']
       ssl_socket = OpenSSL::SSL::SSLSocket.new(socket, ssl_context)
@@ -30,6 +30,10 @@ RSpec::Matchers.define :support_protocol do |protocol|
       end
     end
     (@protocol - @supported_protocol).size == 0
+  end
+
+  chain :via_proxy do |proxy|
+    @proxy = proxy
   end
 
   description do

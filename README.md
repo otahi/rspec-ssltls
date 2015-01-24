@@ -45,6 +45,17 @@ describe 'www.example.com:443' do
 end
 ```
 
+You can use `via_proxy` chain to specify https_proxy server.
+```ruby
+describe 'www.example.com:443' do
+  it do
+    is_expected.to have_certificate
+      .subject(CN: '*.example.com').valid_at('2020/09/12 19:00:05 JST')
+      .via_proxy('http://user:pass@proxy.example.com/')
+  end
+end
+```
+
 You can use followings for `support_protocol` and `support_cipher.protocol`:
 ```
  OpenSSL::SSL::SSLContext::METHODS

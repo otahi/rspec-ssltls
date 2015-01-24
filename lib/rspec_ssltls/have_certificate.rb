@@ -8,7 +8,7 @@ RSpec::Matchers.define :have_certificate do
     @result_string ||= ''
     @chain_number  ||= 0
     uri = URI.parse('https://' + dest)
-    socket = TCPSocket.open(uri.host, uri.port)
+    socket = RspecSsltls::Util.open_socket(uri, proxy: @proxy)
     ssl_context = OpenSSL::SSL::SSLContext.new
     ssl_context.verify_mode = @verify_mode if @verify_mode
     ssl_context.cert_store  = @cert_store  if @cert_store
@@ -71,6 +71,10 @@ RSpec::Matchers.define :have_certificate do
     @chain_string =
       RspecSsltls::Util.add_string(@chain_string, "signed with #{s}")
     @signature_algorithm = s
+  end
+
+  chain :via_proxy do |proxy|
+    @proxy = proxy
   end
 
   def valid_cert?
