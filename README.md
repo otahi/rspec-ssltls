@@ -51,7 +51,7 @@ describe 'www.example.com:443' do
   it do
     is_expected.to have_certificate
       .subject(CN: '*.example.com').valid_at('2020/09/12 19:00:05 JST')
-      .via_proxy('http://user:pass@proxy.example.com/')
+      .via_proxy('http://user:pass@proxy.example.com:3128/')
   end
 end
 ```
