@@ -24,7 +24,7 @@ module RspecSsltls
       if options[:proxy]
         proxy_uri = build_uri(options[:proxy])
         proxy_server = Net::SSH::Proxy::HTTP.new(proxy_uri.host,
-                                                 proxy_uri.host,
+                                                 proxy_uri.port,
                                                  user: proxy_uri.user,
                                                  password: proxy_uri.password)
         proxy_server.open(uri.host, uri.port)
