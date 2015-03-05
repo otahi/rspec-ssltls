@@ -56,6 +56,17 @@ describe 'www.example.com:443' do
 end
 ```
 
+You can also specify https_proxy server with `RSpec.configuration.rspec_ssltls_https_proxy`
+as global configuration.
+```
+RSpec.configuration.rspec_ssltls_https_proxy = 'http://proxy.example.com:3128'
+
+```
+or
+```
+RSpec.configuration.rspec_ssltls_https_proxy = ENV['https_proxy']
+```
+
 You can use followings for `support_protocol` and `support_cipher.protocol`:
 ```
  OpenSSL::SSL::SSLContext::METHODS

@@ -28,6 +28,19 @@ describe RspecSsltls::Util do
         socket = described_class.open_socket(uri, proxy: proxy_url)
         expect(socket).to eq(:direct)
       end
+      context 'when RSpec.configuration.rspec_ssltls_https_proxy is given' do
+        before :each do
+          RSpec.configuration.rspec_ssltls_https_proxy =
+            'http://proxy.example.com'
+        end
+        after :each do
+          RSpec.configuration.rspec_ssltls_https_proxy = nil
+        end
+        it 'should connect target via specified proxy server' do
+          socket = described_class.open_socket(uri, proxy: proxy_url)
+          expect(socket).to eq(:proxy)
+        end
+      end
     end
   end
 
