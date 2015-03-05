@@ -21,8 +21,9 @@ module RspecSsltls
     end
 
     def self.open_socket(uri, options = {})
-      if options[:proxy]
-        proxy_uri = build_uri(options[:proxy])
+      proxy = proxy_config(options)
+      if proxy
+        proxy_uri = build_uri(proxy)
         proxy_server = Net::SSH::Proxy::HTTP.new(proxy_uri.host,
                                                  proxy_uri.port,
                                                  user: proxy_uri.user,
@@ -31,6 +32,11 @@ module RspecSsltls
       else
         TCPSocket.open(uri.host, uri.port)
       end
+    end
+
+    def self.proxy_config(options = {})
+      options[:proxy] ? options[:proxy] :
+        RSpec.configuration.rspec_ssltls_https_proxy
     end
 
     def self.build_uri(source)
@@ -42,6 +48,7 @@ module RspecSsltls
       end
     end
 
+    private_class_method :proxy_config
     private_class_method :build_uri
   end
 end
