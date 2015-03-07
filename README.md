@@ -42,6 +42,11 @@ describe 'www.example.com:443' do
   it { is_expected.to support_protocol('TLSv1_2') }
   it { is_expected.to support_cipher('AES256-SHA').protocol('TLSv1') }
   it { is_expected.to support_cipher('DES-CBC3-SHA').protocol('SSLv3') }
+  it do
+    is_expected.to choose_cipher('DES-CBC3-SHA')
+      .protocol('TLSv1')
+      .from(['AES256-SHA', 'AES128-SHA', 'DES-CBC3-SHA'])
+  end
 end
 ```
 
